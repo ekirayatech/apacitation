@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegio Ekirayá Bilingüe- Gestor Bibliográfico</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hanging-indent {
+            padding-left: 2rem;
+            text-indent: -2rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header con el nuevo nombre y menú de pestañas -->
+    <header class="bg-blue-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3 text-center sm:text-left">
+                <div class="bg-white text-blue-700 p-2 rounded-lg font-bold text-xl shadow-sm">🏫</div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight">Colegio Ekirayá Bilingüe - Gestor Bibliográfico</h1>
+                    <p class="text-blue-100 text-xs sm:text-sm">Herramienta institucional para citación y referencias académicas</p>
+                </div>
+            </div>
+            
+            <!-- Cambio 3: Navegación por pestañas principales -->
+            <nav class="flex items-center gap-2 bg-blue-800/60 p-1.5 rounded-xl border border-blue-600">
+<button id="tabTeoriaBtn" onclick="switchTab('teoria')" class="text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-semibold bg-white text-blue-700 shadow-sm">
+                    Guía Teórica
+                </button>                
+<button id="tabGestorBtn" onclick="switchTab('gestor')" class="text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-medium text-white hover:bg-blue-700 ">
+                    Gestor
+                </button>
+                
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+
+        <!-- PESTAÑA 1: GESTOR Y REFERENCIAS GUARDADAS -->
+        <section id="tabGestor" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Generador (7 cols) -->
+                <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-blue-100 flex flex-col">
+                    <h2 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2 border-b border-blue-50 pb-3">
+                        <span class="bg-blue-100 text-blue-700 w-7 h-7 rounded-full flex items-center justify-center text-xs">1</span>
+                        Generador de Citas y Referencias
+                    </h2>
+
+                    <!-- Estilos y Tipos de Fuentes -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Estilo de citación:</label>
+                            <select id="styleType" class="w-full p-2.5 bg-blue-50/50 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm font-semibold text-blue-900">
+                                <option value="apa">APA 7ª Edición</option>
+                                <option value="chicago">Chicago (Notas / Bibliografía)</option>
+                                <option value="ieee">IEEE (Ingeniería y Tecnología)</option>
+                                <option value="mla">MLA 9ª Edición</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de recurso:</label>
+                            <select id="sourceType" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:outline-none text-sm text-slate-800">
+                                <option value="ai">🤖 Inteligencia Artificial (ChatGPT, Gemini, etc.)</option>
+                                <option value="journal">📄 Artículo Científico / Académico (DOI)</option>
+                                <option value="web">🌐 Página Web / Artículo Digital</option>
+                                <option value="book">📘 Libro Impreso o Digital</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos de Entrada -->
+                    <form id="citationForm" class="space-y-4 flex-grow">
+                        <div id="dynamicFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+                        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+                            <button type="button" id="generateBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2">
+                                ⚡ Generar Cita y Referencia
+                            </button>
+                            <button type="button" id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2.5 px-4 rounded-xl transition text-sm">
+                                Limpiar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Previsualización -->
+                    <div id="previewArea" class="mt-6 p-4 bg-blue-50/60 border border-blue-200 rounded-xl hidden space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Resultado Generado</h3>
+                            <span id="currentStyleBadge" class="text-[10px] font-bold uppercase bg-blue-200 text-blue-800 px-2 py-0.5 rounded-md">APA 7</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Referencia bibliográfica:</span>
+                            <div id="refResult" class="hanging-indent bg-white p-3 rounded-lg border border-slate-200 text-sm mt-1 font-serif select-all break-words"></div>
+                        </div>
+
+                        <div id="inTextContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <span class="font-medium text-slate-500">Cita Parentética / En texto:</span>
+                                <div id="citParenthetical" class="bg-white p-2 rounded-lg border border-slate-200 mt-1 font-serif select-all"></div>
+                            </div>
+                            <div>
+                                <span class="font-medium text-slate-500">Cita Narrativa:</span>
+                                <div id="citNarrative" class="bg-white p-2 rounded-lg border border-slate-200 mt-1 font-serif select-all"></div>
+                            </div>
+                        </div>
+
+                        <button id="addToListBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-sm flex items-center justify-center gap-2">
+                            ➕ Guardar en mi Lista de Referencias
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cambio 2: Un solo módulo unificado de Referencias Guardadas (con exportación a TXT) -->
+                <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-blue-100 flex flex-col h-full">
+                    <div class="flex justify-between items-center border-b border-blue-50 pb-3 mb-4">
+                        <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-700 w-7 h-7 rounded-full flex items-center justify-center text-xs">2</span>
+                            Referencias Guardadas
+                        </h2>
+                        <span id="itemCount" class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold">0 elementos</span>
+                    </div>
+
+                    <p class="text-xs text-slate-500 mb-3">Las fuentes guardadas se ordenan alfabéticamente y se almacenan automáticamente en tu navegador.</p>
+
+                    <div id="savedList" class="flex-grow overflow-y-auto max-h-[420px] space-y-3 pr-1 text-sm">
+                        <p class="text-slate-400 text-center py-10 italic text-xs">Aún no has guardado ninguna referencia.</p>
+                    </div>
+
+                    <!-- Botones de Acción Global con Exportar TXT -->
+                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button id="copyAllBtn" class="bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1 shadow-sm">
+                                📋 Copiar lista
+                            </button>
+                            <button id="exportTxtBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1 shadow-sm">
+                                📥 Exportar (.txt)
+                            </button>
+                        </div>
+                        <button id="clearListBtn" class="w-full text-red-500 hover:text-red-700 text-xs py-1 transition text-center font-medium">
+                            Vaciar toda la lista
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: GUÍA TEÓRICA DETALLADA -->
+        <section id="tabTeoria" class="block">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-blue-100 space-y-8">
+                
+                <div class="text-center border-b border-blue-50 pb-6">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-wider">Fundamentos de Citación Académica</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950 mt-2">Guía Teórica y Configuración de Referencias</h2>
+                    <p class="text-slate-600 text-sm mt-1">Comprende la estructura de una referencia académica y su importancia en la investigación.</p>
+                </div>
+
+                <!-- Cambio 4: Detalle exhaustivo de las partes de una referencia -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-blue-900 border-b pb-2">🧩 ¿De qué partes se compone una referencia bibliográfica?</h3>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        Independientemente de la fuente que consultes (un libro, una página web, un artículo científico o una respuesta de Inteligencia Artificial), una referencia completa siempre responde a <strong>cuatro preguntas fundamentales</strong>:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100 space-y-1">
+                            <span class="text-xs font-bold text-blue-700 uppercase">1. ¿Quién?</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Autor / Creador</h4>
+                            <p class="text-xs text-slate-600">Es la persona, grupo de personas o entidad institucional responsable de la obra. En fuentes de IA, se usa el nombre de la empresa creadora (ej. OpenAI, Google).</p>
+                        </div>
+
+                        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100 space-y-1">
+                            <span class="text-xs font-bold text-blue-700 uppercase">2. ¿Cuándo?</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Fecha de publicación</h4>
+                            <p class="text-xs text-slate-600">Año o fecha exacta en la que se publicó el contenido. Si la fuente no muestra fecha, en normas APA se especifica como <i>(s.f.)</i> o "sin fecha".</p>
+                        </div>
+
+                        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100 space-y-1">
+                            <span class="text-xs font-bold text-blue-700 uppercase">3. ¿Qué?</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Título del recurso</h4>
+                            <p class="text-xs text-slate-600">Nombre del documento, libro o artículo. Generalmente se escribe en <i>cursiva</i>. En modelos de IA, se usa el nombre de la herramienta o modelo (ej. <i>ChatGPT</i>, <i>Gemini</i>).</p>
+                        </div>
+
+                        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100 space-y-1">
+                            <span class="text-xs font-bold text-blue-700 uppercase">4. ¿Dónde?</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Fuente / Ubicación</h4>
+                            <p class="text-xs text-slate-600">Lugar donde se puede recuperar la obra: nombre de la editorial, revista académica, o el enlace digital directo (URL o código DOI).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparativa entre Cita y Referencia -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                        <div class="flex items-center gap-2 text-blue-900 font-bold text-base">
+                            <span class="text-xl">📍</span> Cita dentro del Texto (In-Text Citation)
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                            Es un marcador breve dentro de los párrafos del trabajo. Señala al lector exactamente el momento en que se está usando una idea o dato ajeno.
+                        </p>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs font-serif text-slate-800 mt-2">
+                            <strong>Parentética:</strong> (OpenAI, 2024)<br>
+                            <strong>Narrativa:</strong> Según OpenAI (2024)...
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                        <div class="flex items-center gap-2 text-emerald-800 font-bold text-base">
+                            <span class="text-xl">📚</span> Referencia Bibliográfica Completa
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                            Se organiza al final del trabajo en una sección propia. Contiene la información bibliográfica detallada con formato de <strong>sangría francesa</strong>.
+                        </p>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs font-serif text-slate-800 mt-2 hanging-indent">
+                            OpenAI. (2024). <i>ChatGPT</i> (Versión GPT-4) [Modelo de lenguaje grande]. https://chatgpt.com
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Importancia en la vida académica -->
+                <div class="space-y-4 pt-2">
+                    <h3 class="text-lg font-bold text-blue-900 border-b pb-2">🎓 Importancia para la vida universitaria y escolar</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-4 bg-blue-50/30 rounded-xl border border-blue-100 text-xs space-y-1">
+                            <h4 class="font-bold text-blue-950 text-sm">1. Integridad y Ética</h4>
+                            <p class="text-slate-600 leading-relaxed">Reconocer la autoría intelectual demuestra respeto, honestidad y evita faltas disciplinarias por plagio.</p>
+                        </div>
+                        <div class="p-4 bg-blue-50/30 rounded-xl border border-blue-100 text-xs space-y-1">
+                            <h4 class="font-bold text-blue-950 text-sm">2. Rigor Científico</h4>
+                            <p class="text-slate-600 leading-relaxed">Los argumentos ganan solidez y fuerza cuando están fundamentados en investigaciones y fuentes académicas validadas.</p>
+                        </div>
+                        <div class="p-4 bg-blue-50/30 rounded-xl border border-blue-100 text-xs space-y-1">
+                            <h4 class="font-bold text-blue-950 text-sm">3. Trazabilidad del Conocimiento</h4>
+                            <p class="text-slate-600 leading-relaxed">Permite que docentes, compañeros e investigadores interesados puedan localizar y verificar los datos originales.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Cambio 5: Pie de página actualizado -->
+    <footer class="bg-blue-950 text-blue-200 text-center text-xs py-6 border-t border-blue-900 mt-auto">
+        <p class="font-semibold">Colegio Ekirayá - Gestor Bibliográfico</p>
+        <p class="text-blue-400 text-[11px] mt-1">Plataforma educativa para el fortalecimiento de competencias de investigación</p>
+    </footer>
+
+    <!-- Lógica JavaScript -->
+    <script>
+        // Cambio 3: Cambio de pestañas
+        function switchTab(tab) {
+            const gestorSection = document.getElementById('tabGestor');
+            const teoriaSection = document.getElementById('tabTeoria');
+            const gestorBtn = document.getElementById('tabGestorBtn');
+            const teoriaBtn = document.getElementById('tabTeoriaBtn');
+
+            if (tab === 'gestor') {
+                gestorSection.classList.remove('hidden');
+                gestorSection.classList.add('block');
+                teoriaSection.classList.remove('block');
+                teoriaSection.classList.add('hidden');
+
+                gestorBtn.className = "text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-semibold bg-white text-blue-700 shadow-sm";
+                teoriaBtn.className = "text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-medium text-white hover:bg-blue-700";
+            } else {
+                teoriaSection.classList.remove('hidden');
+                teoriaSection.classList.add('block');
+                gestorSection.classList.remove('block');
+                gestorSection.classList.add('hidden');
+
+                teoriaBtn.className = "text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-semibold bg-white text-blue-700 shadow-sm";
+                gestorBtn.className = "text-xs sm:text-sm px-4 py-1.5 rounded-lg transition font-medium text-white hover:bg-blue-700";
+            }
+        }
+
+        const styleType = document.getElementById('styleType');
+        const sourceType = document.getElementById('sourceType');
+        const dynamicFields = document.getElementById('dynamicFields');
+        const previewArea = document.getElementById('previewArea');
+        const refResult = document.getElementById('refResult');
+        const citParenthetical = document.getElementById('citParenthetical');
+        const citNarrative = document.getElementById('citNarrative');
+        const savedList = document.getElementById('savedList');
+        const itemCount = document.getElementById('itemCount');
+        const currentStyleBadge = document.getElementById('currentStyleBadge');
+
+        let references = JSON.parse(localStorage.getItem('ekiraya_manager_refs') || '[]');
+
+        const fieldTemplates = {
+            ai: [
+                { id: 'company', label: 'Empresa / Creador', placeholder: 'ej. OpenAI, Google, Anthropic', full: false },
+                { id: 'model', label: 'Nombre del Modelo / IA', placeholder: 'ej. ChatGPT, Gemini, Claude', full: false },
+                { id: 'version', label: 'Versión / Edición', placeholder: 'ej. GPT-4, 1.5 Pro', full: false },
+                { id: 'year', label: 'Año de la versión/consulta', placeholder: 'ej. 2024', full: false },
+                { id: 'descriptor', label: 'Descripción entre corchetes', placeholder: 'ej. Modelo de lenguaje grande', full: true },
+                { id: 'url', label: 'URL del servicio', placeholder: 'ej. https://chatgpt.com', full: true }
+            ],
+            journal: [
+                { id: 'author', label: 'Autor(es) (Apellido, N.)', placeholder: 'ej. Gómez, R., & Silva, M.', full: true },
+                { id: 'year', label: 'Año de publicación', placeholder: 'ej. 2023', full: false },
+                { id: 'title', label: 'Título del artículo', placeholder: 'ej. Impacto de la IA en la educación', full: true },
+                { id: 'journal', label: 'Nombre de la revista', placeholder: 'ej. Revista de Educación Digital', full: false },
+                { id: 'volume', label: 'Volumen y (Número)', placeholder: 'ej. 12(3)', full: false },
+                { id: 'pages', label: 'Páginas', placeholder: 'ej. 45-58', full: false },
+                { id: 'doi', label: 'DOI o URL', placeholder: 'ej. https://doi.org/10.1016/...', full: true }
+            ],
+            web: [
+                { id: 'author', label: 'Autor o Institución', placeholder: 'ej. Pérez, J. o UNESCO', full: true },
+                { id: 'year', label: 'Año / Fecha completa', placeholder: 'ej. 2023, 10 de marzo', full: false },
+                { id: 'title', label: 'Título del artículo/página', placeholder: 'ej. Estrategias de estudio eficaz', full: true },
+                { id: 'siteName', label: 'Nombre del sitio web', placeholder: 'ej. Observatorio Educativo', full: false },
+                { id: 'url', label: 'URL completa', placeholder: 'ej. https://...', full: true }
+            ],
+            book: [
+                { id: 'author', label: 'Autor(es) (Apellido, N.)', placeholder: 'ej. Montessori, M.', full: true },
+                { id: 'year', label: 'Año de publicación', placeholder: 'ej. 2019', full: false },
+                { id: 'title', label: 'Título del libro', placeholder: 'ej. La mente absorbente del niño', full: true },
+                { id: 'editorial', label: 'Editorial', placeholder: 'ej. Editorial Trillas', full: false },
+                { id: 'url', label: 'DOI o URL (Opcional)', placeholder: 'ej. https://...', full: true }
+            ]
+        };
+
+        function renderFields(type) {
+            dynamicFields.innerHTML = '';
+            fieldTemplates[type].forEach(f => {
+                const div = document.createElement('div');
+                if (f.full) div.className = 'sm:col-span-2';
+                div.innerHTML = `
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">${f.label}:</label>
+                    <input type="text" id="${f.id}" placeholder="${f.placeholder}" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-blue-600 focus:outline-none">
+                `;
+                dynamicFields.appendChild(div);
+            });
+        }
+
+        sourceType.addEventListener('change', (e) => renderFields(e.target.value));
+
+        // Generador de Citas
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const style = styleType.value;
+            const type = sourceType.value;
+            const getVal = (id) => document.getElementById(id)?.value.trim() || '';
+
+            let refHTML = '';
+            let citPar = '';
+            let citNar = '';
+
+            currentStyleBadge.textContent = style.toUpperCase();
+
+            const author = getVal('author') || getVal('company') || 'Autor de la obra';
+            const year = getVal('year') || '2024';
+            const title = getVal('title') || getVal('model') || 'Título de la obra';
+            const url = getVal('url') || getVal('doi');
+            const mainAuthorLastName = author.split(',')[0].split(' ')[0];
+
+            if (style === 'apa') {
+                if (type === 'ai') {
+                    const model = getVal('model') || 'ChatGPT';
+                    const ver = getVal('version') ? ` (${getVal('version')})` : '';
+                    const desc = getVal('descriptor') || 'Modelo de lenguaje grande';
+                    refHTML = `${author}. (${year}). <i>${model}</i>${ver} [${desc}]. ${url}`;
+                } else if (type === 'journal') {
+                    refHTML = `${author}. (${year}). ${title}. <i>${getVal('journal')}</i>, <i>${getVal('volume')}</i>${getVal('pages') ? `, ${getVal('pages')}` : ''}. ${url}`;
+                } else if (type === 'web') {
+                    refHTML = `${author}. (${year}). <i>${title}</i>. ${getVal('siteName')}. ${url}`;
+                } else if (type === 'book') {
+                    refHTML = `${author}. (${year}). <i>${title}</i>. ${getVal('editorial')}. ${url}`;
+                }
+                citPar = `(${mainAuthorLastName}, ${year})`;
+                citNar = `${mainAuthorLastName} (${year})`;
+            } 
+            else if (style === 'chicago') {
+                refHTML = `${author}. "${title}." <i>${getVal('journal') || getVal('siteName') || 'Fuente'}</i> (${year}). ${url}`;
+                citPar = `1. ${author}, <i>${title}</i> (${year}).`;
+                citNar = `Nota al pie Chicago`;
+            }
+            else if (style === 'ieee') {
+                refHTML = `[1] ${author}, "${title}," <i>${getVal('journal') || getVal('siteName') || 'Publicación'}</i>, ${year}. ${url}`;
+                citPar = `[1]`;
+                citNar = `según se indica en [1]`;
+            }
+            else if (style === 'mla') {
+                refHTML = `${author}. "<i>${title}</i>." <i>${getVal('journal') || getVal('siteName') || 'Fuente'}</i>, ${year}, ${url}`;
+                citPar = `(${mainAuthorLastName} p. 15)`;
+                citNar = `${mainAuthorLastName} afirma (p. 15)`;
+            }
+
+            refResult.innerHTML = refHTML;
+            citParenthetical.textContent = citPar;
+            citNarrative.textContent = citNar;
+            previewArea.classList.remove('hidden');
+        });
+
+        // Guardar referencia
+        document.getElementById('addToListBtn').addEventListener('click', () => {
+            const htmlText = refResult.innerHTML;
+            if (!htmlText) return;
+
+            references.push({
+                text: htmlText,
+                style: styleType.value.toUpperCase(),
+                citPar: citParenthetical.textContent,
+                citNar: citNarrative.textContent
+            });
+
+            references.sort((a, b) => a.text.replace(/<[^>]*>/g, '').localeCompare(b.text.replace(/<[^>]*>/g, '')));
+            saveAndRender();
+        });
+
+        function saveAndRender() {
+            localStorage.setItem('ekiraya_manager_refs', JSON.stringify(references));
+            itemCount.textContent = `${references.length} elementos`;
+
+            if (references.length === 0) {
+                savedList.innerHTML = `<p class="text-slate-400 text-center py-10 italic text-xs">Aún no has guardado ninguna referencia.</p>`;
+                return;
+            }
+
+            savedList.innerHTML = references.map((item, index) => `
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl relative hanging-indent font-serif text-xs leading-relaxed">
+                    <span class="font-sans text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold mr-1">${item.style}</span>
+                    ${item.text}
+                    <button onclick="removeRef(${index})" class="absolute top-2 right-2 text-slate-400 hover:text-red-600 font-sans text-xs px-1">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeRef(index) {
+            references.splice(index, 1);
+            saveAndRender();
+        }
+
+        document.getElementById('clearListBtn').addEventListener('click', () => {
+            if (confirm('¿Deseas vaciar toda la lista?')) {
+                references = [];
+                saveAndRender();
+            }
+        });
+
+        document.getElementById('copyAllBtn').addEventListener('click', () => {
+            if (references.length === 0) return alert('No hay referencias guardadas para copiar.');
+            const textToCopy = references.map(r => r.text.replace(/<i>(.*?)<\/i>/g, '$1')).join('\n\n');
+            navigator.clipboard.writeText(textToCopy);
+            alert('¡Lista de referencias copiada!');
+        });
+
+        // Exportación TXT
+        document.getElementById('exportTxtBtn').addEventListener('click', () => {
+            if (references.length === 0) return alert('No hay referencias guardadas para exportar.');
+
+            let fileContent = "=========================================\n";
+            fileContent += "   COLEGIO EKIRAYÁ - GESTOR BIBLIOGRÁFICO\n";
+            fileContent += "     LISTA DE REFERENCIAS Y CITAS\n";
+            fileContent += "=========================================\n\n";
+
+            references.forEach((r, idx) => {
+                const plainRef = r.text.replace(/<i>(.*?)<\/i>/g, '$1');
+                fileContent += `[${idx + 1}] ESTILO: ${r.style}\n`;
+                fileContent += `REFERENCIA: ${plainRef}\n`;
+                fileContent += `CITA PARENTÉTICA: ${r.citPar}\n`;
+                fileContent += `CITA NARRATIVA:   ${r.citNar}\n`;
+                fileContent += "-----------------------------------------\n\n";
+            });
+
+            const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `referencias_ekiraya_${new Date().toISOString().slice(0,10)}.txt`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('citationForm').reset();
+            previewArea.classList.add('hidden');
+        });
+
+        renderFields('ai');
+        saveAndRender();
+    </script>
+</body>
+</html>
